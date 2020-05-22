@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -26,6 +25,7 @@ class Ksiazki {
 
 };
 
+//Nadanie domyslnych wartosci ksiazce po utworzeniu obiektu
 Ksiazki::Ksiazki(){
     this->kol_numer = 0;
     this->sygnatura = "";
@@ -37,6 +37,7 @@ Ksiazki::Ksiazki(){
     this->rok_wydania = 2000;
 }
 
+//Nadanie ksiazce parametrow czyli wpisanych przez uzytkownika tytulu,numeru itd.
 void Ksiazki::setParam(long ko_numer, std::string syg, std::string im_au, std::string naz_au, std::string tyt, std::string ISBN, std::string wyd, short rok){
     this->kol_numer = ko_numer;
     this->sygnatura = syg;
@@ -48,12 +49,14 @@ void Ksiazki::setParam(long ko_numer, std::string syg, std::string im_au, std::s
     this->rok_wydania = rok;
 }
 
+//Funkcja wyswietlajaca parametry ksiazki, uzywana byla w celach testowych
 void Ksiazki::wyswietlKsiazke(){
     std::cout<< this->kol_numer << " " << this->sygnatura << " " << this->imie_autora << " " << this->nazwisko_autora
     << " " << this->tytul << " " << this->ISBN << " "
     << this->wydawnictwo << " " << this->rok_wydania << std::endl;
 }
 
+//Funckja, ktora odczytuje z pliku i wyswietla wszystkie ksiazki w nim zawarte
 void Ksiazki::listuj(){
     std::string nazwa = "ksiazki.txt";
     std::fstream plik;
@@ -63,16 +66,17 @@ void Ksiazki::listuj(){
     do {
         getline(plik,zdanie);
         std::cout << zdanie << std::endl;
-    } while(!plik.eof());
+    } while(!plik.eof()); //Petla sie wykonuje, az do konca pliku
     plik.close();
 }
 
 void enter(){
     std::cout << "Nacisnij Enter, aby kontynuowac" << std::endl;
     getchar();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n'); //Ignorujemy wpisane przez uzytkownika wartosci jesli jakies wpisal w celu zniwelowania bledow
 }
 
+//Funkcja weryfikujaca czy podany ciag jest liczba (int)
 int pobierzLiczbe(std::string pole) {
     int d;
     std::string z;
@@ -110,10 +114,11 @@ void Ksiazki::pobierzDane(){
     this->tytul = pobierzStringa("tytul");
     this->ISBN = pobierzStringa("ISBN");
     this->wydawnictwo = pobierzStringa("nazwe wydawnictwa");
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n'); //Ignorujemy wpisane przez uzytkownika poprzednie wartosci w celu unikniecia bledow
     this->rok_wydania = pobierzLiczbe("rok wydania");
 }
 
+//Dodajemy nowa ksiazke do naszego pliku ksiazki.txt, wczesniej pobralismy od uzytkownika parametry
 void Ksiazki::dodajKsiazke(){
     std::string nazwa = "ksiazki.txt";
     std::fstream plik;
@@ -124,6 +129,7 @@ void Ksiazki::dodajKsiazke(){
     plik.close();
 }
 
+//Funkcja umozliwiajaca wyszukanie ksiazki poprzez wpisanie frazy
 void Ksiazki::wyszukajKsiazke(){
     bool isFraza = false;
     std::string fraza = "";
@@ -135,8 +141,8 @@ void Ksiazki::wyszukajKsiazke(){
     size_t pos;
     while(plik.good()){
         getline(plik,zdanie);
-        pos=zdanie.find(fraza);
-        if(pos!=std::string::npos) {
+        pos=zdanie.find(fraza); //Sprawdzamy czy w danym wierszu znajduje sie podana fraza
+        if(pos!=std::string::npos) { //Jesli tak to przypisujemy dany wiersz do frazy i konczymy szukanie
             fraza = zdanie;
             isFraza = true;
             break;
@@ -144,14 +150,17 @@ void Ksiazki::wyszukajKsiazke(){
     }
     if(isFraza) {
         std::cout << "Znaleziono ksiazke z wyszukana fraza!" << std::endl;
-        std::cout << fraza << std::endl;
+        std::cout << fraza << std::endl; //Wyswietlamy nasz znaleziony wiersz
     } else {
-        std::cout << "Nieznaleziono szukanej frazy!" << std::endl;
+        std::cout << "Nieznaleziono szukanej frazy!" << std::endl; //Wyswietlamy komunikat jesli nie znajdziemy wiersza z dana fraza
     }
 
     plik.close();
 }
-
+/* Funkcja usuwajaca ksiazke po znalezieniu wiersza z dana fraza
+Dziala w takie sposob, ze wszystkie wiersze niezawierajace danej frazy kopiuje do pliku tmp.txt
+A na stepnie usuwa plik ksiazki.txt i zamienia nazwe temp.txt na ksiazki.txt
+Dzieki temu powstaje nam nowy plik z ksiazkami bez ksiazek z podana wczesniej fraza */
 void Ksiazki::usunKsiazke(){
     bool isFraza = false;
     std::string fraza = "";
@@ -169,7 +178,7 @@ void Ksiazki::usunKsiazke(){
             temp << zdanie << std::endl;
         }
     }
-    std::cout << "Usunieto rekord z  podana fraza (jesli nie znaleziono frazy to rekordy pozostaly bez zmian)" << std::endl;
+    std::cout << "Usunieto rekord/y z podana fraza (jesli nie znaleziono frazy to rekordy pozostaly bez zmian)" << std::endl;
     plik.close();
     temp.close();
     remove("ksiazki.txt");
@@ -189,6 +198,7 @@ int main(){
         std::cout << "4.Usun ksiazke" << std::endl;
         std::cout << "5.Zakoncz" << std::endl;
 
+        //Sprawdzamy czy podany ciag jest liczba
         do {
             inBlad = false;
             std::cout << "Podaj numer opcji: ";
@@ -203,6 +213,7 @@ int main(){
                 }
             }
         } while(inBlad || opcja=="");
+        //Po pobraniu od uzytkownika opcji sprawdzamy czy istnieje i jesli tak to wykonujemy funkcje w niej zawarte
         switch(numer){
             case 1:
                 std::cout << "Wybrales opcje 1\n";
